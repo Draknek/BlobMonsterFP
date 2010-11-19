@@ -5,6 +5,8 @@ package
 	import net.flashpunk.masks.*;
 	import net.flashpunk.utils.*;
 	
+	import flash.display.BlendMode;
+	
 	public class BlobMonster extends Entity
 	{
 		[Embed(source="blob.png")]
@@ -19,6 +21,7 @@ package
 		{
 			blob = new Image(BLOB); // Create an Image for the embedded blob.png
 			blob.centerOO(); // Center the image
+			blob.blend = BlendMode.LIGHTEN; // Additive blending
 		}
 		
 		public override function update (): void
@@ -43,6 +46,8 @@ package
 		
 		public override function render (): void
 		{
+			blob.color = 0x00C896; // 0, 200, 150
+			//blob.alpha = 0.15;
 			Draw.graphic(blob, x, y);
 		}
 	}
