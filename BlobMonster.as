@@ -24,7 +24,6 @@ package
 		public function BlobMonster ()
 		{
 			blob = new Image(BLOB); // Create an Image for the embedded blob.png
-			blob.centerOO(); // Center the image
 			blob.blend = BlendMode.LIGHTEN; // Additive blending
 			blob.smooth = true;
 			
@@ -97,8 +96,18 @@ package
 		
 		public override function render (): void
 		{
+			blob.x = 0;
+			blob.y = 0;
+			blob.angle = 0;
 			blob.color = 0x00C896; // 0, 200, 150
 			
+			/*
+			 * ###########
+			 * draw the main bit of the body
+			 * start by setting the images handle (i.e the origin of the image) to it's center
+			 */
+			blob.centerOO();
+		
 			// begin looping through the segments of the body
 			for (var i:int = 0; i < tail.length; i++) {
 				blob.alpha = 0.15; // set the alpha transparency vaue to 0.15, pretty transparent
@@ -106,15 +115,59 @@ package
 				// the  (0.5*sin(i*35)) bit basically bulges the size of the images being
 				// drawn as it gets closer to the center of the monsters body, and tapers off in size as it gets 
 				// to the end. try changing the 0.5 to a higher number to see the effect.
-				blob.scale = 1 + (0.5 * Math.sin(i * 35));
+				blob.scaleX = blob.scaleY = 1 + (0.5 * Math.sin(i * 35));
 				// draw the image
 				blob.render(FP.buffer, tail[i], FP.camera);
 				
 				// this next chunk just draws smaller dots in the center of each segment of the body
 				blob.alpha = 0.8;
-				blob.scale = 0.1;
+				blob.scaleX = blob.scaleY = 0.1;
 				blob.render(FP.buffer, tail[i], FP.camera);
 			}
+			
+			/*
+			 * #########################
+			 * draw little spikes on tail
+			 */
+			blob.color = 0xFFFFFF // 255, 255, 255
+			blob.scaleX = 0.6;
+			blob.scaleY = 0.1;
+		
+			/*
+			 * move the image handle to halfway down the left edge, this'll make the image
+			 * appear to the side of the coordinate it is drawn too, rather than the 
+			 * center as we had for the body sections
+			 */
+			blob.x = 0;
+			blob.y = 0;
+			blob.originX = 0;
+			blob.originY = blob.width*0.5;
+		
+			/*
+			 * rotate the 1st tail image. basically, we're calculating the angle between
+			 * the last 2 points of the tail, and then adding an extra wobble (the 10*sin(time*10) bit)
+			 * to make the pincer type effect.
+			 */
+			blob.angle = 10 * Math.sin(time * 10) + calculateAngle(
+				tail[segments - 1].x, tail[segments - 1].y,
+				tail[segments - 5].x, tail[segments - 5].y
+			);
+			blob.render(FP.buffer, tail[tail.length-1], FP.camera);
+		
+			// second tail image uses negative time to make it move in the opposite direction
+			blob.angle = 10 * Math.sin(-time * 10) + calculateAngle(
+				tail[segments - 1].x, tail[segments - 1].y,
+				tail[segments - 5].x, tail[segments - 5].y
+			);
+			blob.render(FP.buffer, tail[tail.length-1], FP.camera);
+		}
+		
+		private static function calculateAngle (x1:Number,y1:Number,x2:Number,y2:Number):Number
+		{
+			var theX:Number = x1-x2
+			var theY:Number = y1-y2
+			var theAngle:Number = Math.atan2(theY,theX);
+			return theAngle * FP.DEG;
 		}
 	}
 }
