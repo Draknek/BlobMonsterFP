@@ -224,11 +224,12 @@ package
 			blob.render(FP.buffer, p, FP.camera);
 			
 			// yellow light
-			/*setBlobOrigin(0.5, 0.5);
+			blob.angle = 0;
+			setBlobOrigin(0.5, 0.5);
 			blob.color = 0xFFFF00; // 255, 255, 0
 			blob.alpha = 0.2;
-			blob.scaleX = blob.scaleY = 10;//4;
-			blob.render(FP.buffer, p, FP.camera);*/
+			blob.scaleX = blob.scaleY = 4;
+			blob.render(FP.buffer, p, FP.camera);
 		
 			// Finished!
 		}
