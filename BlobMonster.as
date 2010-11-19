@@ -59,8 +59,8 @@ package
 			 * you can change this to anything you like, try setting x and y to the mouse
 			 * coordinates for example
 			*/
-			y = (15 * Math.cos(time * -6)) + (240 + (180 * Math.sin(time * 1.3)));
-			x = (15 * Math.sin(time * -6)) + (320 + (200 * Math.cos(time / 1.5)));
+			y = (15 * Math.cos(time * -6)) + 240 + (180 * Math.sin(time * 1.3));
+			x = (15 * Math.sin(time * -6)) + 320 + (200 * Math.cos(time / 1.5));
 			
 			// Put the head of the tail at x,y coords
 			tail[0].x = x
@@ -96,8 +96,6 @@ package
 		
 		public override function render (): void
 		{
-			blob.x = 0;
-			blob.y = 0;
 			blob.angle = 0;
 			blob.color = 0x00C896; // 0, 200, 150
 			
@@ -108,7 +106,7 @@ package
 			 * draw the main bit of the body
 			 * start by setting the images handle (i.e the origin of the image) to it's center
 			 */
-			blob.centerOO();
+			setBlobOrigin(0.5, 0.5);
 		
 			// begin looping through the segments of the body
 			for (i = 0; i < tail.length; i++) {
@@ -140,10 +138,7 @@ package
 			 * appear to the side of the coordinate it is drawn too, rather than the 
 			 * center as we had for the body sections
 			 */
-			blob.x = 0;
-			blob.y = 0;
-			blob.originX = 0;
-			blob.originY = blob.width*0.5;
+			setBlobOrigin(0, 0.5);
 		
 			/*
 			 * rotate the 1st tail image. basically, we're calculating the angle between
@@ -190,8 +185,65 @@ package
 				blob.angle = 33 * Math.sin(-time * 5 - i * 30) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) + 90
 				blob.render(FP.buffer, tail[i], FP.camera);
 			}
+			
+			// ###################
+			
+			// center the image handle
+			setBlobOrigin(0.5, 0.5);
+			
+			// Draw the eyes. These are just at 90 degrees to the head of the tail.
+			blob.color = 0xFF0000; // 255, 0, 0
+			blob.scaleX = blob.scaleY = 0.6;
+			blob.alpha = 0.3;
+			
+			var ang:Number = calculateAngle(tail[0].x, tail[0].y, tail[1].x, tail[1].y);
+			var ang1:Number = (ang - 45) * FP.RAD;
+			var ang2:Number = (ang + 45) * FP.RAD;
+			var p1:Point = new Point(x + (7 * Math.cos(ang1)), y + (7 * Math.sin(ang1)));
+			var p2:Point = new Point(x + (7 * Math.cos(ang2)), y + (7 * Math.sin(ang2)));
+			
+			blob.render(FP.buffer, p1, FP.camera);
+			blob.render(FP.buffer, p2, FP.camera);
+			
+			blob.color = 0xFFFFFF; // 255, 255, 255
+			blob.scaleX = blob.scaleY = 0.1;
+			blob.alpha = 0.5;
+			blob.render(FP.buffer, p1, FP.camera);
+			blob.render(FP.buffer, p2, FP.camera);
+			
+			// draw beaky thing
+			blob.color = 0x00C89B; // 0, 200, 155
+			blob.scaleX = 0.3;
+			blob.scaleY = 0.1;
+			blob.alpha = 0.8;
+			
+			setBlobOrigin(0, 0.5);
+			blob.angle = ang;
+			
+			var p:Point = new Point(x, y);
+			blob.render(FP.buffer, p, FP.camera);
+			
+			// yellow light
+			/*setBlobOrigin(0.5, 0.5);
+			blob.color = 0xFFFF00; // 255, 255, 0
+			blob.alpha = 0.2;
+			blob.scaleX = blob.scaleY = 10;//4;
+			blob.render(FP.buffer, p, FP.camera);*/
+		
+			// Finished!
 		}
 		
+		private function setBlobOrigin (originX:Number, originY:Number):void
+		{
+			blob.originX = originX * blob.width;
+			blob.originY = originY * blob.width;
+			
+			// Have to set x/y as well because FlashPunk's origin system is stupid.
+			blob.x = -blob.originX;
+			blob.y = -blob.originY;
+		}
+		
+		// This function calculates and returns the angle between two 2D coordinates
 		private static function calculateAngle (x1:Number,y1:Number,x2:Number,y2:Number):Number
 		{
 			var theX:Number = x1-x2
