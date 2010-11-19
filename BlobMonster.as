@@ -101,6 +101,8 @@ package
 			blob.angle = 0;
 			blob.color = 0x00C896; // 0, 200, 150
 			
+			var i:int;
+			
 			/*
 			 * ###########
 			 * draw the main bit of the body
@@ -109,7 +111,7 @@ package
 			blob.centerOO();
 		
 			// begin looping through the segments of the body
-			for (var i:int = 0; i < tail.length; i++) {
+			for (i = 0; i < tail.length; i++) {
 				blob.alpha = 0.15; // set the alpha transparency vaue to 0.15, pretty transparent
 				
 				// the  (0.5*sin(i*35)) bit basically bulges the size of the images being
@@ -160,6 +162,34 @@ package
 				tail[segments - 5].x, tail[segments - 5].y
 			);
 			blob.render(FP.buffer, tail[tail.length-1], FP.camera);
+			
+			
+			/*
+			 * #####################
+			 * draw little fins/arms
+			 */
+			blob.alpha = 1;
+		
+			// begin looping through the body sections again. Note that we don't want fins
+			// on the first and last section because we want other things at those coords.
+			for (i = 1; i < tail.length - 2; i++) {
+				// like the bulging body, we want the fins to grow larger in the center, and smaller
+				// at the end, so the same sort of thing is used here.
+				blob.scaleX = 0.1 + (0.6 * Math.sin(i * 30));
+				blob.scaleY = 0.05
+			
+				// rotate the image. We want the fins to stick out sideways from the body (the calculateangle() bit)
+				// and also to move a little on their own. the 33 * Sin(time * 5 + i * 30) makes the 
+				// fin rotate based in the i index variable, so that all the fins look like they're moving 
+				// one after the other.
+				blob.angle = 33 * Math.sin(time * 5 + i * 30) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) - 90;
+				blob.render(FP.buffer, tail[i], FP.camera);
+				
+				// rotate the opposte fin, note that the signs have changes (-time and -i*30)
+				// to reflect the rotations of the other fin
+				blob.angle = 33 * Math.sin(-time * 5 - i * 30) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) + 90
+				blob.render(FP.buffer, tail[i], FP.camera);
+			}
 		}
 		
 		private static function calculateAngle (x1:Number,y1:Number,x2:Number,y2:Number):Number
