@@ -9,6 +9,8 @@ package
 		{
 			super(640, 480, 60, true);
 			
+			FP.screen.color = 0x0;
+			
 			FP.world.add(new BlobMonster());
 		}
 	}

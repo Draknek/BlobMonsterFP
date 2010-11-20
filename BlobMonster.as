@@ -24,7 +24,7 @@ package
 		public function BlobMonster ()
 		{
 			blob = new Image(BLOB); // Create an Image for the embedded blob.png
-			blob.blend = BlendMode.LIGHTEN; // Additive blending
+			blob.blend = BlendMode.ADD; // Additive blending
 			blob.smooth = true;
 			
 			tail = new Vector.<Point>(segments, true);
@@ -45,7 +45,7 @@ package
 		
 		public override function update (): void
 		{
-			time += speed / 60;
+			time += speed;
 			
 			/*
 			 * here the x and y coordinates are updated.
@@ -59,8 +59,8 @@ package
 			 * you can change this to anything you like, try setting x and y to the mouse
 			 * coordinates for example
 			*/
-			y = (15 * Math.cos(time * -6)) + 240 + (180 * Math.sin(time * 1.3));
-			x = (15 * Math.sin(time * -6)) + 320 + (200 * Math.cos(time / 1.5));
+			y = (15 * Math.cos(time * -6 * FP.RAD)) + 240 + (180 * Math.sin(time * 1.3 * FP.RAD));
+			x = (15 * Math.sin(time * -6 * FP.RAD)) + 320 + (200 * Math.cos(time / 1.5 * FP.RAD));
 			
 			// Put the head of the tail at x,y coords
 			tail[0].x = x
@@ -115,7 +115,7 @@ package
 				// the  (0.5*sin(i*35)) bit basically bulges the size of the images being
 				// drawn as it gets closer to the center of the monsters body, and tapers off in size as it gets 
 				// to the end. try changing the 0.5 to a higher number to see the effect.
-				blob.scaleX = blob.scaleY = 1 + (0.5 * Math.sin(i * 35));
+				blob.scaleX = blob.scaleY = 1 + (0.5 * Math.sin(i * 35 * FP.RAD));
 				// draw the image
 				blob.render(FP.buffer, tail[i], FP.camera);
 				
@@ -145,14 +145,14 @@ package
 			 * the last 2 points of the tail, and then adding an extra wobble (the 10*sin(time*10) bit)
 			 * to make the pincer type effect.
 			 */
-			blob.angle = 10 * Math.sin(time * 10) + calculateAngle(
+			blob.angle = 10 * Math.sin(time * 10 * FP.RAD) + calculateAngle(
 				tail[segments - 1].x, tail[segments - 1].y,
 				tail[segments - 5].x, tail[segments - 5].y
 			);
 			blob.render(FP.buffer, tail[tail.length-1], FP.camera);
 		
 			// second tail image uses negative time to make it move in the opposite direction
-			blob.angle = 10 * Math.sin(-time * 10) + calculateAngle(
+			blob.angle = 10 * Math.sin(-time * 10 * FP.RAD) + calculateAngle(
 				tail[segments - 1].x, tail[segments - 1].y,
 				tail[segments - 5].x, tail[segments - 5].y
 			);
@@ -170,19 +170,19 @@ package
 			for (i = 1; i < tail.length - 2; i++) {
 				// like the bulging body, we want the fins to grow larger in the center, and smaller
 				// at the end, so the same sort of thing is used here.
-				blob.scaleX = 0.1 + (0.6 * Math.sin(i * 30));
+				blob.scaleX = 0.1 + (0.6 * Math.sin(i * 30 * FP.RAD));
 				blob.scaleY = 0.05
 			
 				// rotate the image. We want the fins to stick out sideways from the body (the calculateangle() bit)
 				// and also to move a little on their own. the 33 * Sin(time * 5 + i * 30) makes the 
 				// fin rotate based in the i index variable, so that all the fins look like they're moving 
 				// one after the other.
-				blob.angle = 33 * Math.sin(time * 5 + i * 30) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) - 90;
+				blob.angle = 33 * Math.sin((time * 5 + i * 30) * FP.RAD) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) - 90;
 				blob.render(FP.buffer, tail[i], FP.camera);
 				
 				// rotate the opposte fin, note that the signs have changes (-time and -i*30)
 				// to reflect the rotations of the other fin
-				blob.angle = 33 * Math.sin(-time * 5 - i * 30) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) + 90
+				blob.angle = 33 * Math.sin((-time * 5 - i * 30) * FP.RAD) + calculateAngle(tail[i].x, tail[i].y, tail[i - 1].x, tail[i - 1].y) + 90
 				blob.render(FP.buffer, tail[i], FP.camera);
 			}
 			
